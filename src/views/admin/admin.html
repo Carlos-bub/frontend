@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/favicon.png">
     <title>Painel Administrativo - Barbearia Dias</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,21 +49,32 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="filters">
-            <input type="date" id="date-filter" placeholder="Filtrar por data">
-            <input type="time" id="time-filter" placeholder="Filtrar por hora">
-            <select id="status-filter">
-                <option value="">Todos os status</option>
-                <option value="pendente">Pendente</option>
-                <option value="confirmado">Confirmado</option>
-                <option value="cancelado">Cancelado</option>
-            </select>
-            <button onclick="limparFiltros()">
-                <i class="fas fa-sync-alt"></i>
-                Limpar Filtros
-            </button>
-        </div>
+        <!-- Appointments Section -->
+        <section class="appointments-section">
+            <h2>Gerenciar Agendamentos</h2>
+            <!-- Filters -->
+            <div class="filters">
+                <input type="date" id="date-filter" placeholder="Filtrar por data">
+                <input type="time" id="time-filter" placeholder="Filtrar por hora">
+                <select id="status-filter">
+                    <option value="">Todos os status</option>
+                    <option value="pendente">Pendente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+                <button onclick="limparFiltros()">
+                    <i class="fas fa-sync-alt"></i>
+                    Limpar Filtros
+                </button>
+            </div>
+
+            <!-- Appointments List -->
+            <div class="appointments-container">
+                <div id="appointments-list">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
+            </div>
+        </section>
 
         <!-- Services Section -->
         <section class="services-section">
@@ -104,20 +116,13 @@
                 </div>
             </div>
         </section>
-
-        <!-- Appointments List -->
-        <div class="appointments-container">
-            <div id="appointments-list">
-                <!-- Será preenchido pelo JavaScript -->
-            </div>
-        </div>
     </main>
 
     <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <h3>Barbearia Style</h3>
+                    <h3>Barbearia Dias</h3>
                     <p>Transformando seu visual desde 2015</p>
                 </div>
                 <div class="social-links">

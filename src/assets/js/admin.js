@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarAgendamentos();
     carregarServicos();
 
+    // Event listeners para filtros
+    ['date-filter', 'time-filter', 'status-filter'].forEach(filterId => {
+        const elemento = document.getElementById(filterId);
+        if (elemento) {
+            elemento.addEventListener('change', () => carregarAgendamentos());
+        }
+    });
+
     // Adicionar listener para o formulário de serviços
     const serviceForm = document.getElementById('add-service-form');
     if (serviceForm) {
@@ -58,77 +66,101 @@ function exibirAgendamentos(agendamentos) {
     const statusFilter = document.getElementById('status-filter')?.value || '';
 
     // Filtrar agendamentos
-    let agendamentosFiltrados = agendamentos;
-    
-    if (dateFilter) {
-        agendamentosFiltrados = agendamentosFiltrados.filter(a => 
-            new Date(a.data).toISOString().split('T')[0] === dateFilter
-        );
-    }
-    
-    if (timeFilter) {
-        agendamentosFiltrados = agendamentosFiltrados.filter(a => 
-            new Date(a.hora).toLocaleTimeString().includes(timeFilter)
-        );
-    }
-    
-    if (statusFilter) {
-        agendamentosFiltrados = agendamentosFiltrados.filter(a => 
-            a.status.toLowerCase() === statusFilter.toLowerCase()
-        );
-    }
+    let agendamentosFiltrados = agendamentos.filter(agendamento => {
+        // Filtro por data - ajustando para timezone local
+        const dataAgendamento = new Date(agendamento.data);
+        const dataAgendamentoStr = dataAgendamento.toISOString().split('T')[0];
+        const dataMatch = !dateFilter || dataAgendamentoStr === dateFilter;
+        
+        // Filtro por hora - usando timezone Brasil
+        const horaAgendamento = new Date(agendamento.hora).toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'America/Sao_Paulo'
+        });
+        const horaMatch = !timeFilter || horaAgendamento === timeFilter;
+        
+        // Filtro por status
+        const statusMatch = !statusFilter || agendamento.status.toLowerCase() === statusFilter.toLowerCase();
+        
+        return dataMatch && horaMatch && statusMatch;
+    });
 
-    // Header
-    let html = `
-        <div class="appointments-header">
-            <div>Data</div>
-            <div>Hora</div>
-            <div>Cliente</div>
-            <div>Status</div>
-            <div>Serviço</div>
-            <div>Ações</div>
-        </div>
-    `;
+    // Ordenar por data e hora
+    agendamentosFiltrados.sort((a, b) => {
+        const dataA = new Date(a.data);
+        const dataB = new Date(b.data);
+        if (dataA.getTime() !== dataB.getTime()) {
+            return dataA - dataB;
+        }
+        return new Date(a.hora) - new Date(b.hora);
+    });
 
-    // Rows
+    let html = '';
+    
     if (agendamentosFiltrados.length === 0) {
-        html += `
-            <div class="appointment-row">
-                <div colspan="6" style="text-align: center; grid-column: 1 / -1; padding: 2rem;">
-                    Nenhum agendamento encontrado
-                </div>
+        html = `
+            <div class="no-appointments">
+                <i class="fas fa-calendar-times"></i>
+                <p>Nenhum agendamento encontrado</p>
             </div>
         `;
     } else {
-        agendamentosFiltrados.forEach(agendamento => {
-            const data = new Date(agendamento.data).toLocaleDateString();
-            html += `
-                <div class="appointment-row">
+        html += `
+            <div class="appointments-header">
+                <div>Data</div>
+                <div>Hora</div>
+                <div>Cliente</div>
+                <div>Status</div>
+                <div>Serviço</div>
+                <div>Ações</div>
+            </div>
+        `;
+
+        html += agendamentosFiltrados.map(agendamento => {
+            const data = new Date(agendamento.data).toLocaleDateString('pt-BR');
+            const hora = new Date(agendamento.hora).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/Sao_Paulo'
+            });
+            
+            const statusCapitalizado = agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1);
+            
+            return `
+                <div class="appointment-row ${agendamento.status.toLowerCase()}">
                     <div>${data}</div>
-                    <div>${new Date(agendamento.hora).toLocaleTimeString()}</div>
-                    <div>${agendamento.nome}<br><small>${agendamento.email}<br>${agendamento.telefone}</small></div>
+                    <div>${hora}</div>
                     <div>
-                        <span class="status ${agendamento.status.toLowerCase()}">
-                            ${agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1)}
-                        </span>
+                        <strong>${agendamento.nome}</strong><br>
+                        <small>${agendamento.telefone}</small>
+                    </div>
+                    <div>
+                        <span class="status status-${agendamento.status.toLowerCase()}">${statusCapitalizado}</span>
                     </div>
                     <div>${agendamento.servico}</div>
                     <div class="actions">
-                        ${agendamento.status.toLowerCase() === 'pendente' ? `
-                            <button class="btn-action" onclick="atualizarStatus('${agendamento.id}', 'confirmado')" title="Confirmar">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="btn-action" onclick="atualizarStatus('${agendamento.id}', 'cancelado')" title="Cancelar">
-                                <i class="fas fa-times"></i>
-                            </button>
+                        ${agendamento.status !== 'cancelado' ? `
+                            ${agendamento.status !== 'confirmado' ? `
+                                <button onclick="atualizarStatus(${agendamento.id}, 'confirmado')" class="action-btn confirm" title="Confirmar Agendamento">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            ` : ''}
+                            ${agendamento.status !== 'cancelado' ? `
+                                <button onclick="atualizarStatus(${agendamento.id}, 'cancelado')" class="action-btn cancel" title="Cancelar Agendamento">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
                         ` : ''}
                     </div>
                 </div>
             `;
-        });
+        }).join('');
     }
 
     container.innerHTML = html;
+    atualizarContadores(agendamentosFiltrados);
 }
 
 function atualizarContadores(agendamentos) {

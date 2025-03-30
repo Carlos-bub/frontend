@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const timeStr = date.toLocaleTimeString('pt-BR', { 
                     hour: '2-digit', 
                     minute: '2-digit',
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/Sao_Paulo'
                 });
                 
                 const option = document.createElement('option');

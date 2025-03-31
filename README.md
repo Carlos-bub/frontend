@@ -51,7 +51,7 @@ Sistema desenvolvido para barbearias de médio porte, que moderniza processos ma
 ### Agendamento (`views/public/agendamento.html`)
 - Formulário de agendamento em etapa:
 ---
-            1.Lista de serviços
+            1. Lista de serviços
             2. Escolha de data
             3. Seleção de horário
             4. Dados do cliente

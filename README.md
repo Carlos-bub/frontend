@@ -87,7 +87,7 @@ filtrarAgendamentos(); // aplica filtros
 gerenciarServicos(); // CRUD de serviços
 ```
 
-### AAuth (`auth.js`)
+### Auth (`auth.js`)
 ```javascript
 login(); // processa login
 verificarAutenticação(); // Valida token
